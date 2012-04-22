@@ -172,7 +172,7 @@ class PlancakeApiClient
 
         $request = $this->prepareRequest($params, 'getToken');
 
-        $response = json_decode(file_get_contents($request));
+        $response = $this->sendHTTPRequest($request);
 
         if (isset($response->error))
         {
@@ -181,6 +181,30 @@ class PlancakeApiClient
 
         $this->token = $response->token;
     }
+
+
+    /**
+     * @param url
+     * @param use inclide path
+     * @param context
+     * @param assoc
+     */
+
+   protected function sendHTTPRequest($url, $use_include_path = false, $context = null, $assoc = false) {
+
+     $result = null;
+
+     $result_data = file_get_contents($url, $use_include_path, $context);
+     if ($result_data) {
+       $result = json_decode($result_data, $assoc);
+     } 
+
+     if (! $result) {
+        throw new Exception("Network Error");
+     } 
+
+     return $result;
+   }
 
     /**
      *
@@ -212,7 +236,7 @@ class PlancakeApiClient
 
         $request = $this->prepareRequest($params, $methodName);
 
-        $response = json_decode(file_get_contents($request, false, $requestContext), true);
+        $response = $this->sendHTTPRequest($request, false, $requestContext, true);
 
         // checking whether an error occurred
         if (isset($response->error))
@@ -225,7 +249,7 @@ class PlancakeApiClient
 
                 $request = $this->prepareRequest($params, $methodName);
 
-                $response = json_decode(file_get_contents($request, false, $requestContext), true);
+                $response = $this->sendHTTPRequest($request, false, $requestContext, true);
 
                 if (isset($response->error))
                 {
